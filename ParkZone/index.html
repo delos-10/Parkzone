@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParkZone — Sistema de Parqueadero</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/views/css/styles.css">
+</head>
+<body>
+
+<!-- ===================================================
+     PANTALLA DE LOGIN
+=================================================== -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-bg-shapes">
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+    <div class="shape s3"></div>
+    <div class="shape s4"></div>
+  </div>
+
+  <div class="login-card" id="loginCard">
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-icon">🅿️</div>
+      <h1>PARK<span>ZONE</span></h1>
+      <p>SISTEMA DE GESTIÓN DE PARQUEADERO</p>
+    </div>
+
+    <!-- Selector de tipo de sesión -->
+    <div class="session-selector">
+      <p class="session-label">Selecciona tu tipo de sesión</p>
+      <div class="session-btns">
+        <button class="session-btn active" data-role="usuario" onclick="seleccionarRol('usuario')">
+          <span class="session-icon">👤</span>
+          <span>Usuario</span>
+        </button>
+        <button class="session-btn" data-role="operador" onclick="seleccionarRol('operador')">
+          <span class="session-icon">🛂</span>
+          <span>Operador</span>
+        </button>
+        <button class="session-btn" data-role="administrador" onclick="seleccionarRol('administrador')">
+          <span class="session-icon">👑</span>
+          <span>Admin</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="login-form">
+      <div class="login-field">
+        <label class="login-lbl" for="loginUser">Usuario</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">👤</span>
+          <input type="text" id="loginUser" placeholder="Ingresa tu usuario" autocomplete="off">
+        </div>
+      </div>
+      <div class="login-field">
+        <label class="login-lbl" for="loginPass">Contraseña</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🔒</span>
+          <input type="password" id="loginPass" placeholder="••••••••">
+          <button class="toggle-pass" onclick="togglePass()" type="button">👁️</button>
+        </div>
+      </div>
+      <div class="login-error" id="loginError"></div>
+      <button class="btn-login" onclick="iniciarSesion()">
+        <span>Ingresar al Sistema</span>
+        <span class="btn-login-arrow">→</span>
+      </button>
+    </div>
+
+    <!-- Info de cuentas demo -->
+    <div class="login-demo">
+      <details>
+        <summary>Ver cuentas de prueba</summary>
+        <div class="demo-list">
+          <div><b>Usuario:</b> usuario / clave: <code>user123</code> — reservas y consulta de mi vehículo</div>
+          <div><b>Operador:</b> operador / clave: <code>op2024</code> — gestión de reservas y entradas/salidas</div>
+          <div><b>Admin:</b> admin / clave: <code>admin2024</code> — todo + dashboard y nómina</div>
+        </div>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================================================
+     SISTEMA PRINCIPAL (oculto hasta login)
+=================================================== -->
+<div id="sistemaApp" style="display:none">
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-icon">🅿️</div>
+    <div>
+      <h1>PARK<span>ZONE</span></h1>
+      <p>SISTEMA DE GESTIÓN DE PARQUEADERO</p>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="role-badge" id="roleBadge">
+      <span id="roleIcon">👤</span>
+      <span id="roleName">Usuario</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="fecha-box" id="fecha"></div>
+    <div class="clock-box" id="reloj">00:00:00</div>
+    <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">⏻ Salir</button>
+  </div>
+</header>
+
+<!-- ===== CONTENIDO PRINCIPAL ===== -->
+<div class="wrapper">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-left">
+
+    <!-- ============================================
+         USUARIO — Hacer una reserva
+    ============================================= -->
+    <div class="card" id="cardReservaUsuario" style="display:none">
+      <div class="card-header ch-azul">
+        <span class="hicon">📅</span> Reservar un Espacio
+      </div>
+      <div class="card-body">
+        <label class="placa-label">Placa del vehículo</label>
+        <div class="placa-field">
+          <div class="placa-prefix">🔑</div>
+          <input type="text" id="resPlaca" placeholder="ABC 123" maxlength="8" autocomplete="off"
+                 oninput="filtrarPlaca(this, 'placaHint2')">
+        </div>
+        <div class="placa-hint" id="placaHint2">Solo letras y números (ej: ABC123)</div>
+
+        <div style="display:flex;flex-direction:column;gap:0.8rem;margin-top:1rem">
+          <div class="login-field">
+            <label class="login-lbl" for="resMarca">Marca del vehículo</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">🚙</span>
+              <input type="text" id="resMarca" placeholder="Ej: Mazda">
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-lbl" for="resModelo">Modelo</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">📋</span>
+              <input type="text" id="resModelo" placeholder="Ej: CX-30">
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-lbl" for="resColor">Color</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">🎨</span>
+              <input type="text" id="resColor" placeholder="Ej: Gris">
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-lbl" for="resFecha">Fecha de la reserva</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">📅</span>
+              <input type="date" id="resFecha">
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-lbl" for="resHoraEntrada">Hora de entrada estimada</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">⏬</span>
+              <input type="time" id="resHoraEntrada">
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-lbl" for="resHoraSalida">Hora de salida estimada</label>
+            <div class="login-input-wrap">
+              <span class="login-input-icon">⏫</span>
+              <input type="time" id="resHoraSalida">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-estado" style="width:100%;margin-top:1.2rem" onclick="crearReservaUsuario()">
+          📅 Reservar Espacio
+        </button>
+
+        <div class="resultado-box" id="resultadoReserva"></div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         USUARIO — Ver en tiempo real si mi vehículo está dentro
+    ============================================= -->
+    <div class="card" id="cardMiVehiculo" style="display:none">
+      <div class="card-header ch-verde">
+        <span class="hicon">🟢</span> Mi Vehículo en Tiempo Real
+      </div>
+      <div class="card-body">
+        <label class="placa-label">Placa a consultar</label>
+        <div class="placa-field">
+          <div class="placa-prefix">🔍</div>
+          <input type="text" id="placaConsulta" placeholder="ABC 123" maxlength="8" autocomplete="off"
+                 oninput="filtrarPlaca(this, 'placaHint3')" onkeydown="if(event.key==='Enter') consultarMiVehiculo()">
+        </div>
+        <div class="placa-hint" id="placaHint3">Solo letras y números (ej: ABC123)</div>
+
+        <button class="btn btn-estado" style="width:100%;margin-top:1rem" onclick="consultarMiVehiculo()">
+          🔍 Verificar mi Vehículo
+        </button>
+
+        <div class="resultado-box" id="resultadoMiVehiculo"></div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         USUARIO — Información completa de mis reservas
+    ============================================= -->
+    <div class="card" id="cardMisReservas" style="display:none">
+      <div class="card-header ch-naranja">
+        <span class="hicon">📜</span> Mis Reservas
+      </div>
+      <div class="card-body" style="padding:0.8rem">
+        <div class="hist-list" id="lista-mis-reservas" style="max-height:340px">
+          <div class="hist-empty">Aún no tienes reservas registradas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         OPERADOR/ADMIN — Registro de vehículos
+    ============================================= -->
+    <div class="card" id="cardRegistroVehiculos" style="display:none">
+      <div class="card-header ch-azul">
+        <span class="hicon">🚗</span> Registro de Vehículos
+      </div>
+      <div class="card-body">
+        <label class="placa-label">Placa del vehículo</label>
+        <div class="placa-field">
+          <div class="placa-prefix">🔑</div>
+          <input type="text" id="placa" placeholder="ABC 123" maxlength="8" autocomplete="off"
+                 oninput="filtrarPlaca(this)" onkeydown="if(event.key==='Enter') registrarEntrada()">
+        </div>
+        <div class="placa-hint" id="placaHint">Solo letras y números (ej: ABC123)</div>
+
+        <div class="btn-grid">
+          <button class="btn btn-entrada" onclick="registrarEntrada()">
+            ⬇️ Entrada
+          </button>
+          <button class="btn btn-salida" onclick="registrarSalida()">
+            ⬆️ Salida
+          </button>
+          <button class="btn btn-estado" onclick="verEstado()">
+            📊 Ver Estado del Parqueadero
+          </button>
+        </div>
+
+        <div class="resultado-box" id="resultado"></div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         OPERADOR/ADMIN — Vehículos activos
+    ============================================= -->
+    <div class="card" id="cardVehiculosActivos" style="display:none">
+      <div class="card-header ch-verde">
+        <span class="hicon">🟢</span> Vehículos Actualmente Dentro
+      </div>
+      <div class="card-body" style="padding:0">
+        <div id="lista-activos" style="max-height:280px; overflow-y:auto;">
+          <div class="hist-empty">No hay vehículos dentro</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         OPERADOR/ADMIN — Reservas actuales (administración)
+    ============================================= -->
+    <div class="card" id="cardReservasActuales" style="display:none">
+      <div class="card-header ch-naranja">
+        <span class="hicon">📅</span> Reservas Actuales
+      </div>
+      <div class="card-body" style="padding:0.8rem">
+        <div class="hist-list" id="lista-reservas-operador" style="max-height:340px">
+          <div class="hist-empty">No hay reservas pendientes o activas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Operador (exclusivo) -->
+    <div class="card panel-operador" id="panelOperador" style="display:none">
+      <div class="card-header ch-naranja">
+        <span class="hicon">🛂</span> Panel del Operador
+        <span class="excl-badge">EXCLUSIVO</span>
+      </div>
+      <div class="card-body">
+        <p class="panel-desc">Como operador puedes gestionar tu turno, reservas y reportes rápidos.</p>
+        <div class="panel-actions">
+          <button class="btn btn-op" onclick="abrirTurno()">🔓 Abrir Turno</button>
+          <button class="btn btn-op" onclick="cerrarTurno()">🔒 Cerrar Turno</button>
+          <button class="btn btn-op" onclick="reporteRapido()">📋 Reporte Rápido</button>
+          <button class="btn btn-op" onclick="buscarVehiculo()">🔍 Buscar Vehículo</button>
+        </div>
+        <div id="panelOpResult" class="resultado-box" style="margin-top:0.8rem"></div>
+      </div>
+    </div>
+
+    <!-- Panel Admin (exclusivo) -->
+    <div class="card panel-admin" id="panelAdmin" style="display:none">
+      <div class="card-header" style="background:#F3E5F5;color:#6A1B9A;border-color:#E1BEE7">
+        <span class="hicon">👑</span> Panel del Administrador
+        <span class="excl-badge" style="background:#6A1B9A">EXCLUSIVO</span>
+      </div>
+      <div class="card-body">
+        <p class="panel-desc">Como administrador tienes control total del sistema.</p>
+        <div class="panel-actions">
+          <button class="btn btn-adm" onclick="configurarTarifa()">💲 Configurar Tarifa</button>
+          <button class="btn btn-adm" onclick="verInformeCompleto()">📊 Informe Completo</button>
+          <button class="btn btn-adm" onclick="abrirDashboard()">📈 Dashboard</button>
+          <button class="btn btn-adm" onclick="abrirNomina()">🧾 Nómina Operadores</button>
+          <button class="btn btn-adm" onclick="resetearSistema()">🔄 Resetear Sistema</button>
+          <button class="btn btn-adm" onclick="exportarDatos()">📤 Exportar Datos</button>
+        </div>
+        <div id="panelAdmResult" class="resultado-box" style="margin-top:0.8rem"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COLUMNA DERECHA -->
+  <div class="col-right">
+
+    <!-- Estadísticas (visibles para todos: ver espacios disponibles) -->
+    <div class="stats-row">
+      <div class="stat stat-ocupados">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-num" id="s-ocup">0</div>
+        <div class="stat-lbl">Ocupados</div>
+      </div>
+      <div class="stat stat-libres">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-num" id="s-lib">50</div>
+        <div class="stat-lbl">Disponibles</div>
+      </div>
+      <div class="stat stat-ingresos">
+        <div class="stat-icon">💰</div>
+        <div class="stat-num" id="s-ing">$0</div>
+        <div class="stat-lbl">Ingresos Hoy</div>
+      </div>
+      <div class="stat stat-total">
+        <div class="stat-icon">📋</div>
+        <div class="stat-num" id="s-tot">0</div>
+        <div class="stat-lbl">Atendidos Hoy</div>
+      </div>
+    </div>
+
+    <!-- Barra de ocupación -->
+    <div class="card">
+      <div class="card-header ch-azul">
+        <span class="hicon">📊</span> Ocupación del Parqueadero
+      </div>
+      <div class="card-body">
+        <div class="ocu-bar-wrap">
+          <div class="ocu-bar-label">
+            <span id="bar-pct-lbl">0% ocupado</span>
+            <span id="bar-pct-txt">0 / 50 puestos</span>
+          </div>
+          <div class="ocu-bar-track">
+            <div class="ocu-bar-fill" id="ocu-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa de puestos (visible para todos: ver espacios disponibles) -->
+    <div class="card">
+      <div class="card-header ch-verde">
+        <span class="hicon">🗺️</span> Mapa de Puestos
+        <div class="spots-legend" style="margin-left:auto">
+          <div class="leg"><div class="leg-dot leg-libre"></div> Libre</div>
+          <div class="leg"><div class="leg-dot leg-ocup"></div> Ocupado</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="spots-map" id="mapa"></div>
+      </div>
+    </div>
+
+    <!-- Historial (operador/administrador) -->
+    <div class="card" id="cardHistorial" style="display:none">
+      <div class="card-header ch-naranja">
+        <span class="hicon">📜</span> Historial de Movimientos
+      </div>
+      <div class="card-body" style="padding:0.8rem">
+        <div class="hist-list" id="historial">
+          <div class="hist-empty">Sin movimientos registrados aún</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  © 2025 ParkZone — Sistema de Gestión de Parqueadero &nbsp;|&nbsp; 
+  Capacidad: 50 vehículos &nbsp;|&nbsp; 
+  Tarifa: $<span id="footerTarifa">100</span>/minuto &nbsp;|&nbsp;
+  Sesión: <span id="footerSesion">—</span>
+</div>
+
+</div><!-- fin sistemaApp -->
+
+
+<!-- ===== MODAL COBRO ===== -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="mico">🧾</div>
+      <h3>COMPROBANTE DE SALIDA</h3>
+      <p>Gracias por usar ParkZone</p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn-pagar" onclick="cerrarModal()">✅ Confirmar Pago y Salir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CONFIGURAR TARIFA (admin) ===== -->
+<div class="overlay" id="overlayTarifa">
+  <div class="modal modal-sm">
+    <div class="modal-head" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)">
+      <div class="mico">💲</div>
+      <h3>CONFIGURAR TARIFA</h3>
+      <p>Solo accesible para el Administrador</p>
+    </div>
+    <div class="modal-body">
+      <div class="modal-row">
+        <span class="modal-key">Tarifa actual</span>
+        <span class="modal-val" id="tarifaActualShow">$100/min</span>
+      </div>
+      <div class="login-field" style="margin-top:1rem">
+        <label class="login-lbl">Nueva tarifa por minuto ($)</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">💲</span>
+          <input type="number" id="nuevaTarifa" placeholder="100" min="10" max="10000">
+        </div>
+      </div>
+      <div class="login-field" style="margin-top:0.8rem">
+        <label class="login-lbl">Cobro mínimo ($)</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">💰</span>
+          <input type="number" id="nuevoCobMin" placeholder="100" min="10" max="10000">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot" style="display:flex;gap:0.8rem">
+      <button class="btn-pagar" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)" onclick="guardarTarifa()">💾 Guardar Cambios</button>
+      <button class="btn-pagar" style="background:#ccc;color:#333" onclick="cerrarTarifa()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL DASHBOARD (admin) ===== -->
+<div class="overlay" id="overlayDashboard">
+  <div class="modal" style="width:min(600px, 94vw)">
+    <div class="modal-head" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)">
+      <div class="mico">📈</div>
+      <h3>DASHBOARD GENERAL</h3>
+      <p>Vista global del sistema — Solo Administrador</p>
+    </div>
+    <div class="modal-body" id="dashboardBody"></div>
+    <div class="modal-foot">
+      <button class="btn-pagar" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)" onclick="cerrarDashboard()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL NÓMINA (admin) ===== -->
+<div class="overlay" id="overlayNomina">
+  <div class="modal" style="width:min(560px, 94vw)">
+    <div class="modal-head" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)">
+      <div class="mico">🧾</div>
+      <h3>NÓMINA DE OPERADORES</h3>
+      <p>Pago calculado según las horas laborales registradas</p>
+    </div>
+    <div class="modal-body">
+      <div class="login-field">
+        <label class="login-lbl">Tarifa por hora trabajada ($)</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">💲</span>
+          <input type="number" id="nominaTarifaInput" placeholder="8000" min="100" step="100">
+        </div>
+      </div>
+      <button class="btn btn-adm" style="width:100%;margin-top:0.8rem" onclick="calcularYRenderNomina()">🔄 Recalcular Nómina</button>
+
+      <div class="hist-list" id="nominaBody" style="margin-top:1rem;max-height:280px"></div>
+
+      <div class="modal-total" style="margin-top:1rem">
+        <span>💰 TOTAL NÓMINA</span>
+        <span id="nominaTotalGeneral">$0</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-pagar" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)" onclick="cerrarNomina()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP TIEMPO EN MAPA -->
+<div class="spot-tooltip" id="spotTooltip"></div>
+
+<script src="src/utils/helpers.js"></script>
+<script src="src/utils/alerts.js"></script>
+<script src="src/models/model-datos.js"></script>
+<script src="src/models/model-reserva.js"></script>
+<script src="src/models/model-turno.js"></script>
+<script src="src/controllers/controller-auth.js"></script>
+<script src="src/controllers/controller-parking.js"></script>
+<script src="src/controllers/controller-reservas.js"></script>
+<script src="src/controllers/controller-operador.js"></script>
+<script src="src/controllers/controller-admin.js"></script>
+</body>
+</html>
