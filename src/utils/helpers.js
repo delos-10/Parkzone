@@ -1,7 +1,5 @@
-/* ============================================================
-   HELPERS.JS — Funciones de utilidad
-   Archivo: src/utils/helpers.js
-============================================================ */
+/* HELPERS.JS — Funciones de utilidad
+   Archivo: src/utils/helpers.js */
 
 /* ---- Formato moneda COP ---- */
 function formatCOP(v) {
