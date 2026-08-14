@@ -15,6 +15,7 @@ function abrirTurno() {
   }
 
   registrarAperturaTurno(sesionActual.usuario, sesionActual.nombre);
+  if (typeof guardarEstadoLocalStorage === 'function') guardarEstadoLocalStorage();
   document.getElementById('panelOpResult').innerHTML =
     `<div class="msg msg-ok">✅ Turno abierto a las <b>${horaInicioTurno.toLocaleTimeString('es-CO')}</b>.<br>
      Operador: <b>${sesionActual.nombre}</b></div>`;
@@ -31,6 +32,7 @@ function cerrarTurno() {
   }
 
   const registro = registrarCierreTurno();
+  if (typeof guardarEstadoLocalStorage === 'function') guardarEstadoLocalStorage();
   document.getElementById('panelOpResult').innerHTML = `
     <div class="msg msg-ok">
       🔒 <b>Turno cerrado</b><br>
