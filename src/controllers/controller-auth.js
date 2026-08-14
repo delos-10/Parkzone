@@ -8,7 +8,7 @@ const USUARIOS = {
   usuario: {
     password: 'user123',
     rol: 'usuario',
-    nombre: 'Juan García',
+    nombre: 'Bryan Gomez',
     icon: '👤'
   },
   operador: {
