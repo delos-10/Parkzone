@@ -1,7 +1,7 @@
-/* ============================================================
+/* 
    MODEL-TURNO.JS — Turnos del operador y cálculo de nómina
    Archivo: src/models/model-turno.js
-============================================================ */
+ */
 
 /* ---- Abrir un turno para el operador actual ---- */
 function registrarAperturaTurno(usuario, nombre) {

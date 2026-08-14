@@ -1,7 +1,7 @@
-/* ============================================================
+/* 
    MODEL-DATOS.JS — Estado global y configuración del sistema
    Archivo: src/models/model-datos.js
-============================================================ */
+*/
 
 // ---- CONFIGURACIÓN ----
 const CAPACIDAD            = 50;

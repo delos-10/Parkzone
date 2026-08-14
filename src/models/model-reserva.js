@@ -1,7 +1,7 @@
-/* ============================================================
+/* 
    MODEL-RESERVA.JS — Lógica de datos de las reservas
    Archivo: src/models/model-reserva.js
-============================================================ */
+*/
 
 /* ---- Calcular costo estimado de una reserva según horario planeado ---- */
 function calcularCostoEstimadoReserva(horaEntrada, horaSalida) {
